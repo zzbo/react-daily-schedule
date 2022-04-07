@@ -1,6 +1,6 @@
-import logo from './logo.svg';
+// import logo from './logo.svg';
 import './App.css';
-import DailySchedule from './components';
+import DailySchedule from './components/DailySchedule';
 
 function App() {
   return (

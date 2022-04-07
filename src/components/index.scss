@@ -1,3 +1,12 @@
+* {
+  margin: 0;
+  padding: 0;
+}
+
+div {
+  box-sizing: border-box;
+}
+
 .daily-schedule {
   overflow: hidden;
 
@@ -22,7 +31,7 @@
     border-image: linear-gradient(to bottom,transparent 50%, rgba(0, 0, 0, .08) 50%) 0 0 100%/1px 0;
 
     .adm-swiper-slide {
-      // padding: 0 8px;
+      padding: 0 8px;
     }
 
     .item {
@@ -93,9 +102,8 @@
 
       overflow: scroll;
 
-      height: calc(100vh - 144px);
-      margin-top: 10px;
-      padding-top: 10px;
+      height: calc(100vh - 128px);
+      padding-top: 30px;
       padding-bottom: 110px;
     }
 
