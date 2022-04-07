@@ -1,0 +1,533 @@
+.daily-schedule {
+  overflow: hidden;
+
+  background-color: #fff;
+
+  .name {
+    font-size: 20px;
+
+    height: 32px;
+    margin: 16px 20px 6px;
+  }
+
+  .date-list {
+    font-size: 12px;
+
+    overflow: hidden;
+
+    margin-top: 14px;
+    padding-bottom: 16px;
+
+    border-bottom: 1px solid transparent;
+    border-image: linear-gradient(to bottom,transparent 50%, rgba(0, 0, 0, .08) 50%) 0 0 100%/1px 0;
+
+    .adm-swiper-slide {
+      // padding: 0 8px;
+    }
+
+    .item {
+      float: left;
+
+      width: 14.28%;
+      // width: calc(14.28% - 20px);
+      // margin: 0 10px;
+      // height: 56px;
+      padding-top: 6px;
+      padding-bottom: 6px;
+
+      text-align: center;
+
+      .week {
+        font-size: 16px;
+        font-weight: 500;
+
+        color: #191919;
+      }
+
+      .date {
+        font-size: 12px;
+
+        display: inline-block;
+
+        width: 43px;
+
+        color: rgba(0, 0, 0, .6);
+        border-radius: 3px;
+      }
+    }
+
+    .item.today {
+      .week {
+        color: #006fff;
+      }
+
+      .date {
+        color: #006fff;
+      }
+    }
+
+    .item.selected {
+      color: #006fff;
+      border-radius: 16px;
+      background-color: #e2f2ff;
+
+      .week {
+        color: #006fff;
+      }
+
+      .date {
+        color: #006fff;
+      }
+    }
+  }
+
+  .date-timeline-container {
+    .date-timeline-header {
+      font-size: 16px;
+
+      padding: 14px 0 0 14px;
+    }
+
+    .date-timeline-main {
+      position: relative;
+
+      overflow: scroll;
+
+      height: calc(100vh - 144px);
+      margin-top: 10px;
+      padding-top: 10px;
+      padding-bottom: 110px;
+    }
+
+    .date-timeline-item {
+      // border-image: linear-gradient(to bottom,transparent 50%, #f1f1f1 50%) 0 0 100%/1px 0;
+      position: relative;
+
+      height: 73px;
+
+      &::before {
+        position: absolute;    //设置定位
+        top: 0;  //如果不设置可能会出现偏移
+        left: 0;
+
+        box-sizing: border-box;    //设置盒模型 这一步必须要有,否则边框不会随着一起缩放
+        width: 200%;    //设置为插入元素的两倍宽高
+        height: 200%;
+
+        content: '';    //追加一个空
+        transform: scale(.5, .5);    //宽高缩小一半
+        transform-origin: 0 0;    //设置元素的基点为0 0
+
+        border-top: 1px solid rgba(0, 0, 0, .08);    //设置边框
+      }
+
+      .date-timeline-hour {
+        font-family: 'PingFang SC';
+        font-size: 12px;
+
+        position: relative;
+
+        float: left;
+
+        width: 52px;
+        height: 73px;
+        margin-top: -9px;
+        padding-left: 11px;
+
+        text-align: left;
+
+        color: rgba(0, 0, 0, .24);
+        background-color: #fff;
+      };
+
+      .event-handler {
+        float: right;
+
+        width: 40px;
+      }
+    }
+
+    .date-timeline-schedule {
+      position: absolute;
+      right: 0;
+      left: 52px;
+
+      height: 100%;
+      padding-top: 12px;
+      padding-left: 16px;
+
+      border-radius: 4px;
+      background-color: #f5f7fb;
+
+      .schedule-info {
+        font-size: 12px;
+
+        color: rgba(45, 48, 51, .6);
+
+        .time {
+          display: inline-block;
+        }
+
+        .meeting {
+          display: inline-block;
+
+          margin-top: 4px;
+          margin-left: 12px;
+        }
+      }
+
+      .schedule-content {
+        font-size: 14px;
+
+        overflow: hidden;
+
+        .schedule-name {
+          font-size: 14px;
+
+          float: left;
+          overflow: hidden;
+
+          max-width: 167px;
+          margin-left: 6px;
+
+          white-space: nowrap;
+          text-overflow: ellipsis;
+
+          color: #2d3033;
+        }
+
+        .schedule-host {
+          font-size: 12px;
+
+          float: left;
+
+          height: 16px;
+          margin-top: 3px;
+          padding: 0 3px;
+
+          color: #185bec;
+          border-radius: 4px;
+          background-color: #b9deff;
+        }
+
+        .schedule-host.mine {
+          color: #fff;
+          background-color: #006fff;
+        }
+
+        .schedule-host-text {
+          line-height: 16px;
+        }
+      }
+
+      .schedule-handler {
+        position: absolute;
+        top: 0;
+        right: 14px;
+        bottom: 0;
+
+        width: 24px;
+
+
+        .handler-btn {
+          position: absolute;
+          top: 50%;
+
+          margin: 0;
+          padding: 0;
+
+          transform: translateY(-50%);
+
+          border: none;
+          outline: none;
+          background-color: transparent;
+        }
+      }
+
+      .mine-flag {
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        left: 0;
+
+        width: 8px;
+
+        border-left: 4px solid #0091ff;
+        border-radius: 4px;
+      }
+    }
+
+    .schedule-disabled {
+      pointer-events: none;
+    }
+
+    .schedule-item {
+      position: absolute;
+
+      width: 100%;
+    }
+
+    .adm-swipe-action {
+      position: absolute;
+      right: 20px;
+      left: 0;
+
+      height: 100%;
+
+      background-color: transparent;
+
+      .adm-swipe-action-track {
+        height: 100%;
+      }
+
+      .adm-button {
+        width: 100%;
+        margin-left: 4px;
+
+        border-radius: 4px;
+        background-color: #ff481d;
+      }
+
+      .delete-btn {
+        font-size: 12px;
+        line-height: 16px;
+
+        text-align: center;
+
+        .delete-icon {
+          display: block;
+
+          width: 24px;
+          height: 24px;
+          margin: 0 auto;
+        }
+      }
+    }
+
+    .mini-size {
+      .date-timeline-schedule {
+        padding-top: 1px;
+      }
+
+      .delete-btn {
+        line-height: 0;
+
+        .delete-icon {
+          display: none;
+        }
+      }
+
+      .adm-button {
+        height: auto;
+        padding: 0 12px;
+      }
+    }
+
+    .size-a,
+    .size-b {
+      .date-timeline-schedule {
+        padding-top: 0;
+      }
+
+      .schedule-container {
+        position: absolute;
+        top: 50%;
+
+        transform: translateY(-50%);
+      }
+
+      .adm-button {
+        height: auto;
+        padding: 0 12px;
+      }
+    }
+
+    .size-a {
+      .schedule-info {
+        display: none;
+      }
+    }
+
+    .size-b {
+      .schedule-container {
+        top: calc(50% + 1px);
+      }
+    }
+
+    .expired {
+      pointer-events: none;
+
+      .schedule-container,
+      .mine-flag {
+        opacity: .4;
+      }
+    }
+  }
+
+  .current-line {
+    position: absolute;
+    z-index: 2;
+    top: -20px;
+    right: 0;
+    left: 42px;
+
+    border-top: 1px solid #ff4225;
+
+    &::before {
+      display: block;
+
+      width: 6px;
+      height: 9px;
+      margin-top: -5px;
+
+      content: '';
+      // border-radius: 50%;
+
+      background-color: #ff4225;
+    }
+
+    &::after {
+      position: absolute;
+      top: -4px;
+      left: 3px;
+
+      width: 1px;
+      height: 1px;
+
+      content: '';
+      transform: matrix(.71,.71,-.71,.71,0,0);
+
+      border-width: 6px 6px 0 0;
+      border-style: solid;
+      border-color: #ff4225;
+    }
+  }
+
+  .adm-swiper-indicator {
+    display: none;
+  }
+
+  .adm-swipe-action-content > div {
+    pointer-events: unset !important;
+  }
+
+  .adm-swipe-action-actions-right {
+    width: 68px;
+  }
+
+  .timetable-handler {
+    position: absolute;
+    z-index: 3;
+    right: 20px;
+    bottom: 46px;
+
+    width: 56px;
+
+    text-align: center;
+
+    .go-today-btn,
+    .add-btn {
+      position: relative;
+
+      overflow: hidden;
+
+      border: none;
+      border-radius: 50%;
+      outline: none;
+    }
+
+    .go-today-btn {
+      font-size: 16px;
+      font-weight: 500;
+      line-height: 24px;
+
+      position: relative;
+
+      width: 44px;
+      height: 44px;
+      padding: 0;
+
+      text-align: center;
+
+      color: #006fff;
+      border-radius: 50%;
+      background-color: #fff;
+      box-shadow: 0 4px 12px rgba(0, 111, 255, .3);
+    }
+
+    .add-btn {
+      width: 56px;
+      height: 56px;
+      margin-top: 24px;
+
+      color: transparent;
+      background-color: #006fff;
+      box-shadow: 0 4px 12px rgba(0, 111, 255, .3);
+
+      &::before,
+      &::after {
+        position: absolute;
+
+        display: block;
+
+        width: 24px;
+        height: 4px;
+
+        content: '';
+
+        border-radius: 3px;
+        background: #fff;
+      }
+
+      &::before {
+        top: 50%;
+        left: 50%;
+
+        transform: translate(-50%, -50%);
+      }
+
+      &::after {
+        top: 50%;
+        left: 50%;
+
+        transform: rotate(90deg) translate(-1px, 12px);
+      }
+    }
+  }
+}
+
+.schedule-dialog {
+  .adm-dialog-title {
+    font-size: 16px;
+    font-weight: 500;
+  }
+
+  .adm-auto-center-content {
+    font-size: 14px;
+    font-weight: 400;
+  }
+
+  .dialog-cancel-text {
+    font-size: 16px;
+    font-weight: 400;
+
+    color: rgba(0, 0, 0, .87);
+  }
+
+  .dialog-confirm-text {
+    font-size: 16px;
+    font-weight: 500;
+
+    color: #006fff;
+  }
+}
+
+.add-schedule-tooltip {
+  transform: translateX(-3px);
+
+  .ant-tooltip-inner {
+    padding: 11px 18px;
+
+    border-radius: 8px;
+  }
+}
