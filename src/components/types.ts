@@ -15,6 +15,7 @@ export interface ScheduleData {
 export interface DailyScheduleProps {
   title: string | ReactNode;
   scheduleData: ScheduleData[];
+  initDate?: number;
   onAdd: () => void;
   onEdit: (id: number) => void;
   onDelete: (id: number) => void;

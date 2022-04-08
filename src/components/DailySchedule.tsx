@@ -68,7 +68,7 @@ function toMinus(timestamp: number): number {
   return parseInt((timestamp / 1000 / 60).toString(), 10);
 }
 
-function calcTop(targetTimestamp: number, offset = 10): number {
+function calcTop(targetTimestamp: number, offset = 32): number {
   const currDate = new Date(targetTimestamp);
   const targetMinus = toMinus(targetTimestamp);
   const limitTime = toMinus(currDate.setHours(21, 59, 59));
@@ -99,18 +99,24 @@ function parseTime(
   };
 }
 
+// 获取指定日期的开始时间
+function getDateStartTime(timestamp: number) {
+  return Math.floor(new Date(Number(timestamp)).setHours(0, 0, 0) / 1000);
+}
+
 const dateList = createDateList(nowTime);
 
 const DailySchedule: React.FC<DailyScheduleProps> = (props) => {
-  const [selectDate, setSelectDate] = useState(nowTime);
+  const [selectDate, setSelectDate] = useState<number>(props.initDate || Date.now());
+  // Lock for Swiper component trigger onIndexChange event.
   const [isGoTodayFlag, setGoTodayFlag] = useState(false);
   const currentLineRef = useRef<HTMLDivElement>(null);
   const swipeRef = useRef<SwiperRef>(null);
   const { scheduleData } = props;
 
   const selectDateHandler = useCallback(
-    (event) => {
-      const dateTimestamp = event.currentTarget.dataset.timestamp;
+    (event: React.SyntheticEvent<HTMLElement>) => {
+      const dateTimestamp = Number(event.currentTarget.dataset.timestamp);
       setSelectDate(dateTimestamp);
       if (props.onSelectDate) {
         props.onSelectDate(dateTimestamp);
@@ -138,8 +144,8 @@ const DailySchedule: React.FC<DailyScheduleProps> = (props) => {
   }, [props]);
 
   const edit = useCallback(
-    (event) => {
-      const { id } = event.currentTarget.dataset;
+    (event: React.SyntheticEvent<HTMLElement>) => {
+      const id = Number(event.currentTarget.dataset.id);
       event.stopPropagation();
 
       if (props.onEdit) {
@@ -150,8 +156,8 @@ const DailySchedule: React.FC<DailyScheduleProps> = (props) => {
   );
 
   const clickItem = useCallback(
-    (event) => {
-      const { id } = event.currentTarget.dataset;
+    (event: React.SyntheticEvent<HTMLElement>) => {
+      const id = Number(event.currentTarget.dataset.id);
       if (props.onScheduleItemClick) {
         props.onScheduleItemClick(id);
       }
@@ -160,28 +166,33 @@ const DailySchedule: React.FC<DailyScheduleProps> = (props) => {
   );
 
   const del = useCallback(
-    (event) => {
-      const { id } = event.currentTarget.querySelector('.delete-btn').dataset;
-      event.stopPropagation();
+    (event: React.MouseEvent<Element, MouseEvent>) => {
+      const deleteBtn = event.currentTarget.querySelector('.delete-btn') as HTMLElement;
 
-      Dialog.confirm({
-        title: '删除课程',
-        content: '确定要删除此课程吗？',
-        confirmText: <div className="dialog-confirm-text">删除</div>,
-        cancelText: <div className="dialog-cancel-text">取消</div>,
-        onConfirm: async () => {
-          if (props.onDelete) {
-            props.onDelete(id);
-          }
-        },
-        className: 'schedule-dialog',
-      });
+      if (deleteBtn) {
+        const id = Number(deleteBtn.dataset?.id);
+        event.stopPropagation();
+
+        Dialog.confirm({
+          title: '删除课程',
+          content: '确定要删除此课程吗？',
+          confirmText: <div className="dialog-confirm-text">删除</div>,
+          cancelText: <div className="dialog-cancel-text">取消</div>,
+          onConfirm: async () => {
+            if (props.onDelete) {
+              props.onDelete(id);
+            }
+          },
+          className: 'schedule-dialog',
+        });
+      }
+
     },
     [props],
   );
 
   const swiperChange = useCallback(
-    (index) => {
+    (index: number) => {
       if (!isGoTodayFlag) {
         const weekFirstDateTimeStamp = dateList[index][0];
         setSelectDate(weekFirstDateTimeStamp);
@@ -200,7 +211,12 @@ const DailySchedule: React.FC<DailyScheduleProps> = (props) => {
     if (currentLineRef.current) {
       currentLineRef.current.style.top = `${top + passHours}px`;
     }
-  }, []);
+  }, [selectDate]);
+
+  const selectDateStart = getDateStartTime(selectDate);
+  const todayStart = getDateStartTime(nowTime);
+  const isSelectToday = selectDateStart === todayStart;
+  const isSelectBeforeToday = selectDateStart < todayStart;
 
   return (
     <div className="daily-schedule">
@@ -209,13 +225,15 @@ const DailySchedule: React.FC<DailyScheduleProps> = (props) => {
         <Swiper ref={swipeRef} defaultIndex={2} onIndexChange={swiperChange}>
           {dateList.map((dateItem) => {
             return (
+              // @ts-expect-error
               <Swiper.Item key={dateItem[0]}>
                 {dateItem.map((date) => {
                   const dateObj = formatDate(date);
+
                   return (
                     <div
                       className={cx('item', {
-                        selected: Number(selectDate) === Number(dateObj.timestamp),
+                        selected: getDateStartTime(selectDate) === getDateStartTime(dateObj.timestamp),
                         today: nowTime === dateObj.timestamp,
                       })}
                       key={date}
@@ -237,8 +255,7 @@ const DailySchedule: React.FC<DailyScheduleProps> = (props) => {
       <div className="date-timeline-container">
         <div className="date-timeline-main">
           <TimelineScale />
-          <div className="current-line" ref={currentLineRef} />
-
+          {isSelectToday && <div className="current-line" ref={currentLineRef} />}
           {scheduleData.map((scheduleItem) => {
             const beginTimeObj = parseTime(scheduleItem.beginTime);
             const endTimeObj = parseTime(scheduleItem.endTime);
@@ -251,7 +268,7 @@ const DailySchedule: React.FC<DailyScheduleProps> = (props) => {
             const sizeA = height < 43; // 第二行不显示
             const sizeB = height >= 43 && height <= 66; // 信息块居中
             const sizeC = height > 66; // 信息块顶部距离 12px
-            const isExpired = nowTime > scheduleItem.endTime;
+            const isExpired = getDateStartTime(nowTime) > getDateStartTime(scheduleItem.endTime);
 
             return (
               <div
@@ -274,7 +291,7 @@ const DailySchedule: React.FC<DailyScheduleProps> = (props) => {
                     expired: isExpired,
                   })}
                   closeOnAction={false}
-                  closeOnTouchOutside={false}
+                  // closeOnTouchOutside={false}
                   rightActions={[
                     {
                       key: 'delete',
@@ -327,7 +344,7 @@ const DailySchedule: React.FC<DailyScheduleProps> = (props) => {
           </button>
         )}
 
-        {props.isShowAddBtn && (
+        {props.isShowAddBtn && !isSelectBeforeToday && (
           <Tooltip
             overlayClassName="add-schedule-tooltip"
             placement="topRight"
